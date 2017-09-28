@@ -1,16 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@drawable/login_activity_background"
     tools:context="xyz.bnayagrawal.android.icontest.LoginActivity">
-
     <!-- Login progress -->
     <ProgressBar
         android:id="@+id/login_progress"
@@ -20,39 +15,58 @@
         android:layout_marginBottom="8dp"
         android:visibility="gone" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:background="@drawable/login_gradient"
+        android:orientation="vertical"
+        android:elevation="2dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:paddingLeft="16dp"
+            android:paddingBottom="16dp"
+            android:textColor="@android:color/white"/>
+
+        <ImageView
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="12dp"
+            android:src="@drawable/ic_basic_world"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="intranet"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:fontFamily="sans-serif-light"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
+
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_gravity="center_vertical"
             android:id="@+id/email_login_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="128dp"
-                android:layout_height="128dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_margin="12dp"
-                android:src="@drawable/ic_basic_world"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="intranet"
-                android:textColor="@android:color/white"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-light"
-                android:layout_gravity="center_horizontal"/>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="18dp"
                 android:layout_marginLeft="18dp"
                 android:layout_marginRight="18dp">
 
@@ -71,9 +85,7 @@
                         android:drawablePadding="12dp"
                         android:hint="username"
                         android:inputType="textEmailAddress"
-                        android:maxLines="1"
-                        android:backgroundTint="@android:color/white"
-                        android:textColor="@android:color/white" />
+                        android:maxLines="1"/>
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -94,9 +106,7 @@
                         android:imeOptions="actionUnspecified"
                         android:inputType="textPassword"
                         android:paddingBottom="20dp"
-                        android:maxLines="1"
-                        android:backgroundTint="@android:color/white"
-                        android:textColor="@android:color/white"/>
+                        android:maxLines="1"/>
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -109,13 +119,14 @@
                     android:layout_marginTop="16dp"
                     android:letterSpacing="0.1"
                     android:text="SIGN IN"
+                    android:textColor="@android:color/white"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_marginTop="12dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/black"
                     android:textStyle="bold"
                     android:text="forgot password?"/>
             </LinearLayout>
