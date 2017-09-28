@@ -21,11 +21,11 @@
             android:columnCount="2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary">
+            android:background="@drawable/dashboard_gradient">
 
             <LinearLayout
                 android:padding="10dp"
-                android:background="@color/colorPrimary"
+                android:background="@android:color/transparent"
                 android:orientation="vertical"
                 android:layout_gravity="fill_horizontal"
                 android:layout_columnWeight="1"
@@ -55,7 +55,7 @@
 
             <LinearLayout
                 android:padding="10dp"
-                android:background="@color/colorPrimary"
+                android:background="@android:color/transparent"
                 android:orientation="vertical"
                 android:layout_gravity="fill"
                 android:layout_columnWeight="1"
@@ -84,7 +84,7 @@
 
             <LinearLayout
                 android:padding="10dp"
-                android:background="@color/colorPrimary"
+                android:background="@android:color/transparent"
                 android:orientation="vertical"
                 android:layout_gravity="fill"
                 android:layout_columnWeight="1"
@@ -113,7 +113,7 @@
 
             <LinearLayout
                 android:padding="10dp"
-                android:background="@color/colorPrimary"
+                android:background="@android:color/transparent"
                 android:orientation="vertical"
                 android:layout_gravity="fill"
                 android:layout_columnWeight="1"
