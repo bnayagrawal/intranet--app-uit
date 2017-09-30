@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 public class FragmentEvents extends Fragment {
 
+    private MainActivity context;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.events_fragment, container, false);
@@ -26,18 +27,18 @@ public class FragmentEvents extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((MainActivity)getActivity()).setToolbar();
-        Toast.makeText(getContext(),"somethings wrong",Toast.LENGTH_SHORT).show();
+        context = (MainActivity)getActivity();
+        context.setToolbar();
         initTabs();
     }
 
     protected void initTabs() {
-        TabLayout tabLayout = (TabLayout) getActivity().findViewById(R.id.event_tab_layout);
+        TabLayout tabLayout = (TabLayout) context.findViewById(R.id.event_tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("All events"));
         tabLayout.addTab(tabLayout.newTab().setText("Workshops"));
 
-        final ViewPager viewPager = (ViewPager) getActivity().findViewById(R.id.pager);
-        final PagerAdapter adapter = new EventsTabPagerAdapter(getActivity().getSupportFragmentManager(), tabLayout.getTabCount());
+        final ViewPager viewPager = (ViewPager) context.findViewById(R.id.pager);
+        final PagerAdapter adapter = new EventsTabPagerAdapter(getChildFragmentManager(), tabLayout.getTabCount());
 
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));

@@ -17,6 +17,8 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private Bundle savedInstanceState;
+    private NavigationView navigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.savedInstanceState = savedInstanceState;
         setFragment();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_dashboard);
     }
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             int count = getSupportFragmentManager().getBackStackEntryCount();
             if(count == 1)
-                Toast.makeText(this,"Press back button once again to exit!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Press back button once again to exit!", Toast.LENGTH_SHORT).show();
             if(count == 0)
                 super.onBackPressed();
             else
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
+        navigationView.setCheckedItem(id);
         switch (id) {
             case R.id.nav_dashboard : {
                 if (findViewById(R.id.fragment_container) != null) {
@@ -59,16 +61,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     FragmentDashboard tf =  (FragmentDashboard)getSupportFragmentManager().findFragmentByTag("DASHBOARD_FRAGMENT");
                     if(tf != null && tf.isVisible())
                         break;//means this fragment is currently being displayed
-                    else if(!tf.isVisible()){
-                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,tf,"DASHBOARD_FRAGMENT").commit();
-                    }
+
                     if (savedInstanceState == null) {
+                        //clear the back stack
+                        int count =  getSupportFragmentManager().getBackStackEntryCount();
+                        for(int i = 0; i < count; ++i) {
+                            getSupportFragmentManager().popBackStackImmediate();
+                        }
+                        Toast.makeText(this, "Press back button once again to exit!", Toast.LENGTH_SHORT).show();
+
+                        //create the fragment
                         drawer.closeDrawer(GravityCompat.START);
                         FragmentDashboard fragment = new FragmentDashboard ();
                         fragment.setArguments(getIntent().getExtras());
                         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        ft.replace(R.id.fragment_container, fragment,"DASHBOARD_FRAGMENT").addToBackStack(null).commit();
+                        ft.replace(R.id.fragment_container, fragment,"DASHBOARD_FRAGMENT").commit();
                     }
                 }
                 break;
@@ -134,6 +141,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
 
+            //clear backstack
+            getSupportFragmentManager().popBackStackImmediate();
+
             // Create a new Fragment to be placed in the activity layout
             FragmentDashboard fragment = new FragmentDashboard();
 
@@ -144,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             // Add the fragment to the 'fragment_container' FrameLayout
-            ft.replace(R.id.fragment_container, fragment, "DASHBOARD_FRAGMENT").addToBackStack(null).commit();
+            ft.replace(R.id.fragment_container, fragment, "DASHBOARD_FRAGMENT").commit();
         }
     }
 }
