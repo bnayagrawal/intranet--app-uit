@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setCheckedItem(R.id.nav_dashboard);
     }
 
+    // TODO: (OPTIONAL) ADD CUSTOME SLIDE ANIMATION WHEN LAUNCHING THIS ACTIVITY
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
