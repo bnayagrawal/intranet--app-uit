@@ -154,10 +154,10 @@
     <!-- TODO: HERE I SUPPOSED TO BE INCLUDING A LAYOUT WHICH SHOULD HOLD THE LAYOUT BELOW -->
 
     <ScrollView
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/layout_background"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:background="@color/layout_background">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
