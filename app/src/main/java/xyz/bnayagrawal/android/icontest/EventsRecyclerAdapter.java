@@ -2,12 +2,16 @@ package xyz.bnayagrawal.android.icontest;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +33,7 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
     // Dummy data
     List<DummyEventDataProvider.EventDataSet> detp;
 
-    //public constructor just to get the activity context and store it.
+    //public constructor to get the activity context and event data.
     public EventsRecyclerAdapter(Context context,List<DummyEventDataProvider.EventDataSet> detp) {
         this.context = context;
         this.detp = detp;
@@ -45,7 +49,7 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
 
     //this method will be called automatically by recyclerview before showing the card(list item) to user, the passed viewholder object will be populated with data to display.
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(final ViewHolder viewHolder, int position) {
         DummyEventDataProvider.EventDataSet eds = detp.get(position);
 
         viewHolder.itemTitle.setText(eds.getTitle());
@@ -57,10 +61,29 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
 
         //Set some properties of imageview (used to display event image)
         viewHolder.itemImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        viewHolder.itemImage.setVisibility(View.VISIBLE);
+
 
         //Picasso image loading and caching framework
-        Picasso.with(context).load(eds.getImage()).resize(640,480).centerCrop().into(viewHolder.itemImage);
+        Picasso.with(context).load(eds.getImage()).resize(640,480).centerCrop().into(viewHolder.itemImage,new Callback(){
+            @Override
+            public void onSuccess() {
+                //hide the progress bar
+                viewHolder.imageLoadProgress.setVisibility(View.GONE);
+                viewHolder.itemImage.setVisibility(View.VISIBLE);
+
+                //animation using xml resource
+                Animation image_scale = AnimationUtils.loadAnimation(context, R.anim.image_scale_anim);
+                viewHolder.itemImage.startAnimation(image_scale);
+            }
+
+            @Override
+            public void onError() {
+                viewHolder.imageLoadProgress.setVisibility(View.GONE);
+                viewHolder.itemImage.setVisibility(View.VISIBLE);
+                Picasso.with(context).load(R.drawable.event_default_image).resize(640,480).centerCrop().into(viewHolder.itemImage);
+                Toast.makeText(context,"Failed to load image!",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -91,6 +114,7 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
         public TextView going;
         public TextView dates;
         public TextView view;
+        public ProgressBar imageLoadProgress;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -101,6 +125,7 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
             interested = (TextView)itemView.findViewById(R.id.textViewInterested);
             going = (TextView)itemView.findViewById(R.id.textViewGoing);
             view = (TextView)itemView.findViewById(R.id.textViewView);
+            imageLoadProgress = (ProgressBar) itemView.findViewById(R.id.imageLoadProgress);
 
             //add onClick listener to view
             view.setOnClickListener(new View.OnClickListener() {
