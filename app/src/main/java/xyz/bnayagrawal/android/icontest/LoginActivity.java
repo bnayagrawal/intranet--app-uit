@@ -88,11 +88,23 @@ import android.transition.TransitionManager;
 
         mPasswordView = (EditText) findViewById(R.id.password);
 
+        //On enter key move the focus to set password
+        mEmailView.setOnEditorActionListener(
+                new TextView.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                        if(id == EditorInfo.IME_ACTION_NEXT)
+                            mPasswordView.requestFocus();
+                        return false;
+                    }
+                }
+        );
+
         //If the user presses enter key in the keypad, login attempt will be performed
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
                     attemptLogin();
                     return true;
                 }

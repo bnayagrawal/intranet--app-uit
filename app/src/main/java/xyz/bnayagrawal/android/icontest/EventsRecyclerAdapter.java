@@ -81,6 +81,11 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
                 viewHolder.imageLoadProgress.setVisibility(View.GONE);
                 viewHolder.itemImage.setVisibility(View.VISIBLE);
                 Picasso.with(context).load(R.drawable.event_default_image).resize(640,480).centerCrop().into(viewHolder.itemImage);
+
+                //animation using xml resource
+                Animation image_scale = AnimationUtils.loadAnimation(context, R.anim.image_scale_anim);
+                viewHolder.itemImage.startAnimation(image_scale);
+
                 Toast.makeText(context,"Failed to load image!",Toast.LENGTH_SHORT).show();
             }
         });

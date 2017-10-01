@@ -3,6 +3,7 @@ package xyz.bnayagrawal.android.icontest;
 import android.app.Fragment;
 import android.content.Intent;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -31,8 +32,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setCheckedItem(R.id.nav_dashboard);
     }
 
-    // TODO: (OPTIONAL) ADD CUSTOME SLIDE ANIMATION WHEN LAUNCHING THIS ACTIVITY
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        navigationView.setCheckedItem(id);
         switch (id) {
             case R.id.nav_dashboard : {
                 if (findViewById(R.id.fragment_container) != null) {
@@ -100,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         fragment.setArguments(getIntent().getExtras());
                         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        ft.replace(R.id.fragment_container, fragment,"EVENTS_FRAGMENT").addToBackStack(null).commit();
+                        ft.replace(R.id.fragment_container, fragment,"EVENTS_FRAGMENT").addToBackStack("EVENTS_FRAGMENT").commit();
                     }
                 }
                 break;
@@ -157,6 +155,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             // Add the fragment to the 'fragment_container' FrameLayout
             ft.replace(R.id.fragment_container, fragment, "DASHBOARD_FRAGMENT").commit();
+
+            getSupportFragmentManager().addOnBackStackChangedListener(
+                    new FragmentManager.OnBackStackChangedListener() {
+                        @Override
+                        public void onBackStackChanged() {
+                            FragmentDashboard tf =  (FragmentDashboard)getSupportFragmentManager().findFragmentByTag("DASHBOARD_FRAGMENT");
+                                if(tf != null && tf.isVisible())
+                                    navigationView.setCheckedItem(R.id.nav_dashboard);
+
+                        }
+                    });
         }
     }
 }
