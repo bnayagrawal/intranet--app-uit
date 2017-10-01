@@ -9,8 +9,12 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
 
 /**
  * Created by root on 30/9/17.
@@ -22,23 +26,13 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
     // Allows to remember the last item shown on screen
     private int lastPosition = -1;
 
-    //random data
-    private String[] titles =  { "Ethnic Day", "Teachers Day", "Freshers Party" };
-    private String[] smalDec = {
-            "Celebrating World Ethnic Day. 'Ethnic diversity adds richness to a society.' This sentence comes to life with the celebrations of World Ethnic Day. ",
-            "Teachers' Day is a special day for the appreciation of teachers, and may include celebrations to honor them for their special contributions in a particular field area, or the community in general.",
-            "The Freshers' Party was a night filled with talent, music, excitement and enthusiasm. Every year on Freshers' Party a boy and a girl from each stream is nominated for the prestigious title of Mr. & Ms. Fresher and for that they have to go through 3 rounds of different competitions."
-    };
-    private String[] dates = {"12/05/2017", "08/12/2011", "24/04/2016"};
-    private String[] interested = { "56 Interested", "32 Interested", "16 Interested" };
-    private String[] going = { "18 Going", "22 Going", "12 Going" };
-    private String view = "View event";
-
-    private int image = R.drawable.event_default_image;
+    // Dummy data
+    List<DummyEventDataProvider.EventDataSet> detp;
 
     //public constructor just to get the activity context and store it.
-    public EventsRecyclerAdapter(Context context) {
+    public EventsRecyclerAdapter(Context context,List<DummyEventDataProvider.EventDataSet> detp) {
         this.context = context;
+        this.detp = detp;
     }
 
     @Override
@@ -49,28 +43,29 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
         return viewHolder;
     }
 
+    //this method will be called automatically by recyclerview before showing the card(list item) to user, the passed viewholder object will be populated with data to display.
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        viewHolder.itemTitle.setText(titles[i]);
-        viewHolder.itemDetail.setText(smalDec[i]);
-        viewHolder.dates.setText(dates[i]);
-        viewHolder.interested.setText(interested[i]);
-        viewHolder.going.setText(going[i]);
-        viewHolder.view.setText(view);
+    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+        DummyEventDataProvider.EventDataSet eds = detp.get(position);
+
+        viewHolder.itemTitle.setText(eds.getTitle());
+        viewHolder.itemDetail.setText(eds.getDescription());
+        viewHolder.dates.setText(eds.getNotification_date());
+        viewHolder.interested.setText(eds.getPeoples_interested());
+        viewHolder.going.setText(eds.getPeoples_going());
+        viewHolder.view.setText(eds.getCaption());
 
         //Set some properties of imageview (used to display event image)
         viewHolder.itemImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
         viewHolder.itemImage.setVisibility(View.VISIBLE);
 
-        //viewHolder.itemImage.setImageResource(image);
-
         //Picasso image loading and caching framework
-        Picasso.with(context).load(image).resize(640,480).centerCrop().into(viewHolder.itemImage);
+        Picasso.with(context).load(eds.getImage()).resize(640,480).centerCrop().into(viewHolder.itemImage);
     }
 
     @Override
     public int getItemCount() {
-        return titles.length;
+        return detp.size();
     }
 
     /**
@@ -106,6 +101,14 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
             interested = (TextView)itemView.findViewById(R.id.textViewInterested);
             going = (TextView)itemView.findViewById(R.id.textViewGoing);
             view = (TextView)itemView.findViewById(R.id.textViewView);
+
+            //add onClick listener to view
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //TODO: open event detail activity
+                }
+            });
         }
     }
 }
