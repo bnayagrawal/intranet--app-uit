@@ -72,6 +72,9 @@ public class TabFragmentEvent extends Fragment {
 
         //custom recycler item animation by wasabeef(github)
         SlideInUpAnimator animator = new SlideInUpAnimator(new OvershootInterpolator(1f));
+        animator.setChangeDuration(500);
+        animator.setAddDuration(500);
+        animator.setRemoveDuration(500);
         recyclerView.setItemAnimator(animator);
         recyclerView.setAdapter(adapter);
 
