@@ -74,6 +74,7 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- TODO: FIX > USERNAME INPUT FIELD IS COVERED BY KEYPAD WHEN ENTERING VALUE -->
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="match_parent"

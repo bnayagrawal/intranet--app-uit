@@ -2,10 +2,13 @@ package xyz.bnayagrawal.android.icontest;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +23,10 @@ import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
  */
 public class TabFragmentEvent extends Fragment {
 
-    RecyclerView recyclerView;
-    RecyclerView.LayoutManager layoutManager;
-    RecyclerView.Adapter adapter;
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
+    private RecyclerView.Adapter adapter;
+    private SwipeRefreshLayout SwipeRefreshEvents;
 
     public TabFragmentEvent() {
         // Required empty public constructor
@@ -33,8 +37,21 @@ public class TabFragmentEvent extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.tab_fragment_event, container, false);
 
+        //initialize swipe refresh function
+        SwipeRefreshEvents = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshEvents);
+        SwipeRefreshEvents.setColorSchemeColors(Color.RED,Color.GREEN,Color.BLUE);
+
+        SwipeRefreshEvents.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                SwipeRefreshEvents.setRefreshing(true);
+                // TODO: refreshing while fetching the data
+                SwipeRefreshEvents.setRefreshing(false);
+            }
+        });
+
         //Initializing the RecyclerView Component
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_events);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
@@ -65,4 +82,6 @@ public class TabFragmentEvent extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
     }
+
+
 }

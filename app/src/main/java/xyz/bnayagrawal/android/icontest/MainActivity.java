@@ -160,10 +160,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     new FragmentManager.OnBackStackChangedListener() {
                         @Override
                         public void onBackStackChanged() {
-                            FragmentDashboard tf =  (FragmentDashboard)getSupportFragmentManager().findFragmentByTag("DASHBOARD_FRAGMENT");
-                                if(tf != null && tf.isVisible())
+                            FragmentDashboard fd =  (FragmentDashboard)getSupportFragmentManager().findFragmentByTag("DASHBOARD_FRAGMENT");
+                                if(fd != null && fd.isVisible())
                                     navigationView.setCheckedItem(R.id.nav_dashboard);
+                            FragmentEvents fe = (FragmentEvents) getSupportFragmentManager().findFragmentByTag("EVENTS_FRAGMENT");
+                                if(fe != null && fe.isVisible())
+                                    navigationView.setCheckedItem(R.id.nav_events);
 
+                            //TODO: For each fragment do the same
                         }
                     });
         }

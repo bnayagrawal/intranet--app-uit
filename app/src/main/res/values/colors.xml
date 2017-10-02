@@ -4,13 +4,40 @@
     <color name="colorPrimaryDark">#015074</color>
     <color name="colorAccent">#3f944c</color>
 
-    <color name="colorPrimary1">#00558b</color>
-    <color name="colorPrimaryDark1">#01436c</color>
-    <color name="colorAccent1">#e91e63</color>
+    <!-- GRADIENT COLOR SETS -->
 
-    <color name="colorPrimary2">#a80054</color>
-    <color name="colorPrimaryDark2">#880e4f</color>
-    <color name="colorAccent3">#00558b</color>
+    <!-- Roseanna -->
+    <color name="gradRoseannaStart">#ffafbd</color>
+    <color name="gradRoseannaEnd">#ffc3a0</color>
+
+    <!-- Sexy Blue -->
+    <color name="gradSexyBlueStart">#2193b0</color>
+    <color name="gradSexyBlueEnd">#6dd5ed</color>
+
+    <!-- Purple Love -->
+    <color name="gradPurpleLoveStart">#cc2b5e</color>
+    <color name="gradPurpleLoveEnd">#753a88</color>
+
+    <!-- Piglet -->
+    <color name="gradPigletStart">#ee9ca7</color>
+    <color name="gradPigletEnd">#ffdde1</color>
+
+    <!-- Mauve -->
+    <color name="gradMauveStart">#42275a</color>
+    <color name="gradMauveEnd">#734b6d</color>
+
+    <!-- 50 Shades of Grey -->
+    <color name="grad50sogStart">#bdc3c7</color>
+    <color name="grad50sogEnd">#2c3e50</color>
+
+    <!-- A Lost Memory -->
+    <color name="gradALostMemoryStart">#de6262</color>
+    <color name="gradALostMemoryEnd">#ffb88c</color>
+
+    <!-- Socialive -->
+    <color name="gradSocialiveStart">#06beb6</color>
+    <color name="gradSocialiveEnd">#48b1bf</color>
+
 
     <color name="divider">#DCDCDC</color>
     <color name="layout_background">#E6E6E6</color>
