@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#5f3982</color>
+    <color name="colorPrimary">#3C264B</color>
     <color name="colorPrimaryDark">#31203E</color>
     <color name="colorAccent">#de6262</color>
 
-    <color name="gradient">#5f3982</color>
-    <color name="gradientMedium">#3C264B</color>
+    <color name="gradientLight">#5f3982</color>
+    <color name="gradientDark">#31203E</color>
+
     <!-- GRADIENT COLOR SETS -->
 
     <!-- Roseanna -->

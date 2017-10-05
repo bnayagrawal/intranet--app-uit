@@ -5,11 +5,11 @@
     <item
         android:orderInCategory="1"
         android:id="@+id/ew_search"
-        android:actionViewClass="android.widget.SearchView"
+        app:actionViewClass="android.support.v7.widget.SearchView"
         android:enabled="true"
         android:icon="@drawable/ic_search_24dp"
         android:title="Search"
-        app:showAsAction="always" />
+        app:showAsAction="collapseActionView|ifRoom" />
 
     <group
         android:checkableBehavior="single">

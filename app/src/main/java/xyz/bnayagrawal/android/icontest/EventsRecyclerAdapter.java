@@ -3,6 +3,7 @@ package xyz.bnayagrawal.android.icontest;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
@@ -71,7 +72,6 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
 
         //Set some properties of imageview (used to display event image)
         viewHolder.itemImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
 
         //Picasso image loading and caching framework
         //TODO: Change to string for url.
