@@ -10,11 +10,18 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.animation.OvershootInterpolator;
+import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
@@ -37,6 +44,9 @@ public class TabFragmentEvent extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.tab_fragment_event, container, false);
 
+        //Toolbar settings
+        setHasOptionsMenu(true);
+
         //initialize swipe refresh function
         SwipeRefreshEvents = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshEvents);
         SwipeRefreshEvents.setColorSchemeColors(Color.RED,Color.GREEN,Color.BLUE);
@@ -56,7 +66,7 @@ public class TabFragmentEvent extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         //Some dummy event data
-        DummyEventDataProvider ed = new DummyEventDataProvider();
+        List<EWDataSet> ewds = new ArrayList<>();
 
         //Dummy description
         String[] smalDec = {
@@ -64,11 +74,14 @@ public class TabFragmentEvent extends Fragment {
                 "Teachers' Day is a special day for the appreciation of teachers, and may include celebrations to honor them for their special contributions in a particular field area, or the community in general.",
                 "The Freshers' Party was a night filled with talent, music, excitement and enthusiasm. Every year on Freshers' Party a boy and a girl from each stream is nominated for the prestigious title of Mr. & Ms. Fresher and for that they have to go through 3 rounds of different competitions."
         };
-        ed.add("Ethnic Day",R.drawable.event_default_image,smalDec[0],"12/05/2017","56 Interested","18 Going","View event");
-        ed.add("Teachers Day",R.drawable.event_default_image,smalDec[1],"08/12/2011","32 Interested","22 Going","View event");
-        ed.add("Freshers Party",R.drawable.event_default_image,smalDec[2],"24/04/2016","16 Interested","12 Going","View event");
 
-        adapter = new EventsRecyclerAdapter(getActivity(),ed.events);
+        String default_image = String.valueOf(R.drawable.event_default_image);
+
+        ewds.add(new EWDataSet("Ethnic Day",default_image,smalDec[0],new Date("12/05/2017"),56,18,new Date("12/05/2017"),"Karkala"));
+        ewds.add(new EWDataSet("Teachers Day",default_image,smalDec[1],new Date("12/05/2017"),32,22,new Date("12/05/2017"),"Tirthali"));
+        ewds.add(new EWDataSet("Freshers Party",default_image,smalDec[2],new Date("12/05/2017"),16,12,new Date("12/05/2017"),"Padubidri"));
+
+        adapter = new EventsRecyclerAdapter(getActivity(),ewds);
 
         //custom recycler item animation by wasabeef(github)
         SlideInUpAnimator animator = new SlideInUpAnimator(new OvershootInterpolator(1f));
@@ -86,5 +99,30 @@ public class TabFragmentEvent extends Fragment {
         super.onActivityCreated(savedInstanceState);
     }
 
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Toast.makeText(getContext(),"Menu click etab ",Toast.LENGTH_SHORT).show();
+        switch (item.getItemId()) {
+            case R.id.ew_filter_show_all:
+                if (item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
+                return true;
+            case R.id.ew_filter_interested:
+                if (item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
+                return true;
+            case R.id.ew_filter_going:
+                if (item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

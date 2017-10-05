@@ -1,6 +1,8 @@
 package xyz.bnayagrawal.android.icontest;
 
+import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
@@ -19,6 +21,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Created by root on 30/9/17.
@@ -31,12 +34,12 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
     private int lastPosition = -1;
 
     // Dummy data
-    List<DummyEventDataProvider.EventDataSet> detp;
+    List<EWDataSet> ewds;
 
     //public constructor to get the activity context and event data.
-    public EventsRecyclerAdapter(Context context,List<DummyEventDataProvider.EventDataSet> detp) {
+    public EventsRecyclerAdapter(Context context,List<EWDataSet> ewds) {
         this.context = context;
-        this.detp = detp;
+        this.ewds = ewds;
     }
 
     @Override
@@ -50,21 +53,29 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
     //this method will be called automatically by recyclerview before showing the card(list item) to user, the passed viewholder object will be populated with data to display.
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, int position) {
-        DummyEventDataProvider.EventDataSet eds = detp.get(position);
+        EWDataSet eds = ewds.get(position);
+
+        //limit 100 words for short description to show
+        StringTokenizer st = new StringTokenizer(eds.getDescription()," ");
+        String shortDesc = "";
+        for(int i = 0; i < st.countTokens(); i++)
+            if(i < 100)
+                shortDesc += st.nextToken() + " ";
+            else break;
 
         viewHolder.itemTitle.setText(eds.getTitle());
-        viewHolder.itemDetail.setText(eds.getDescription());
-        viewHolder.dates.setText(eds.getNotification_date());
-        viewHolder.interested.setText(eds.getPeoples_interested());
-        viewHolder.going.setText(eds.getPeoples_going());
-        viewHolder.view.setText(eds.getCaption());
+        viewHolder.itemDetail.setText(shortDesc + "...");
+        viewHolder.dates.setText(eds.getNotification_date().toString());
+        viewHolder.interested.setText(eds.getPeoples_interested() + " Intersted");
+        viewHolder.going.setText(eds.getPeoples_going() + " Going");
 
         //Set some properties of imageview (used to display event image)
         viewHolder.itemImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
 
         //Picasso image loading and caching framework
-        Picasso.with(context).load(eds.getImage()).resize(640,480).centerCrop().into(viewHolder.itemImage,new Callback(){
+        //TODO: Change to string for url.
+        Picasso.with(context).load(R.drawable.event_default_image).resize(640,480).centerCrop().into(viewHolder.itemImage,new Callback(){
             @Override
             public void onSuccess() {
                 //hide the progress bar
@@ -93,7 +104,7 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
 
     @Override
     public int getItemCount() {
-        return detp.size();
+        return ewds.size();
     }
 
     /**
@@ -137,6 +148,8 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
                 @Override
                 public void onClick(View view) {
                     //TODO: open event detail activity
+                    Intent intent = new Intent(context,event_detail_activity.class);
+                    context.startActivity(intent);
                 }
             });
         }

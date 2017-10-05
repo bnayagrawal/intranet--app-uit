@@ -154,6 +154,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:clickable="true"
+                android:text="View event"
                 android:foreground="?attr/selectableItemBackground"
                 android:layout_marginLeft="6dp"
                 android:layout_alignParentRight="true"/>

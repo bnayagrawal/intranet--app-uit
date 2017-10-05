@@ -11,15 +11,22 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 public class FragmentEvents extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.events_fragment, container, false);
+
+        //Toolbar settings
+        setHasOptionsMenu(true);
 
         //using tabs inside this fragment (event fragment)
         TabLayout tabLayout = (TabLayout) view.findViewById(R.id.event_tab_layout);
@@ -53,5 +60,25 @@ public class FragmentEvents extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ((MainActivity)getActivity()).setToolbar();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.events_fragment_menu, menu);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.ew_filter_show_all:
+                return false;
+            case R.id.ew_filter_interested:
+                return false;
+            case R.id.ew_filter_going:
+                return false;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
