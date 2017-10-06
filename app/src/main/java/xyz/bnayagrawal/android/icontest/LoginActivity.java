@@ -4,8 +4,12 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
@@ -45,38 +49,31 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
 import android.transition.TransitionManager;
+import android.widget.Toast;
 
-/**
- * A login screen that offers login via email/password.
- */
-    public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+import org.json.JSONException;
+import org.json.JSONObject;
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
+import xyz.bnayagrawal.android.icontest.internet.*;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
+    public class LoginActivity extends AppCompatActivity implements iNetCallback {
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private AutoCompleteTextView mUsernameView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private TextView mLoginProgressText;
+
+    // Network Operation
+    private NetworkOperation networkOperation;
+    private String result;
+    private boolean ongoing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,13 +81,12 @@ import android.transition.TransitionManager;
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
+        mUsernameView = (AutoCompleteTextView) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
+        mLoginProgressText = (TextView) findViewById(R.id.login_progress_text);
 
         //On enter key move the focus to set password
-        mEmailView.setOnEditorActionListener(
+        mUsernameView.setOnEditorActionListener(
                 new TextView.OnEditorActionListener() {
                     @Override
                     public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -126,70 +122,18 @@ import android.transition.TransitionManager;
         mProgressView = findViewById(R.id.login_progress);
     }
 
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            //if not allowed to access contacts, return.
-            return;
-        }
-
-        // TODO: Check what does the below statement do.
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    //This method will ask permission for accessing contact at runtime.
-    //This will return true if user allows to access contacts or if the api level is below 23 (MM 6.0)
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
         // Reset errors.
-        mEmailView.setError(null);
+        mUsernameView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String username = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         // If the cancel flag is set true login attempt wont be made.
@@ -204,13 +148,13 @@ import android.transition.TransitionManager;
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+        if (TextUtils.isEmpty(username)) {
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+        } else if (!isEmailValid(username)) {
+            mUsernameView.setError(getString(R.string.error_invalid_email));
+            focusView = mUsernameView;
             cancel = true;
         }
 
@@ -222,181 +166,141 @@ import android.transition.TransitionManager;
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            String jsonData = "{" + "\"username\":\"" + username +"\"" + ", " + "\"password\":" + "\"" + password + "\"" + " }";
+            networkOperation = new NetworkOperation(this);
+            networkOperation.beginOperation("http://192.168.43.222:3000/login",jsonData);
         }
     }
 
     // Email or user name validator
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return true;
     }
 
     // password validator
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return true;//password.length() > 4;
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    //Shows the progress UI and hides the login form.
     private void showProgress(final boolean show) {
-
         //My custom transition
         TransitionManager.beginDelayedTransition((LinearLayout)mProgressView);
         mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
         TransitionManager.beginDelayedTransition((CardView)mLoginFormView);
         mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-
-        /* CODE GENERATED BY ANDROID STUDIO TEMPLATE
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }*/
     }
 
+    //DEALING WITH THE SERVER
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-                //start main activity
-                Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+    public void netUpdateResult(String result) {
+        if (result != null) {
+            if(result.equals("HTTP error code: 403")) {
+                Toast.makeText(this,"Incorrect username or password",Toast.LENGTH_SHORT).show();
             } else {
-                // Incorrect password had been entered.
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                //parse json data
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String status = jsonObject.getString("status");
+                    if (status.equals("error")) {
+                        Toast.makeText(getApplicationContext(),jsonObject.getString("message"),Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        HashMap<String,String> hmUserData = getParsedUserData(jsonObject.getJSONObject("data"));
+                        if(hmUserData == null) {
+                            Toast.makeText(getApplicationContext(),"Error parsing data! Contact the developer.",Toast.LENGTH_LONG).show();
+                        } else {
+                            //update shared preferences
+                            SharedPreferences sharedPref = getSharedPreferences("SP_USER_DETAILS_FILE", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+
+                            editor.putInt("USER_ID", Integer.parseInt(hmUserData.get("id")));
+                            editor.putString("USER_FIRST_NAME", hmUserData.get("firstName"));
+                            editor.putString("USER_LAST_NAME", hmUserData.get("lastName"));
+                            editor.putString("USER_USERNAME", hmUserData.get("username"));
+                            editor.putString("USER_EMAIL", hmUserData.get("email"));
+                            editor.putString("USER_JWT_TOKEN", hmUserData.get("jwtToken"));
+                            editor.apply();
+
+                            //start the activity
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                        }
+                    }
+                }
+                catch (JSONException je) {
+                    Toast.makeText(getApplicationContext(),"Error parsing data! Contact the developer.",Toast.LENGTH_LONG).show();
+                }
             }
+        } else {
+            Toast.makeText(this,"error occured!",Toast.LENGTH_SHORT).show();
+        }
+        showProgress(false);
+    }
+
+    @Override
+    public NetworkInfo getActiveNetworkInfo() {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo;
+    }
+
+    @Override
+    public void netTaskComplete() {
+        ongoing = false;
+        if (networkOperation != null) {
+            networkOperation.cancelOperation();
+        }
+    }
+
+    @Override
+    public void netOnProgressUpdate(int progressCode, int percentComplete) {
+        switch(progressCode) {
+            // You can add UI behavior for progress updates here.
+            case iNetProgress.ERROR:
+                mLoginProgressText.setText("Error in connection...");
+                break;
+            case iNetProgress.CONNECT_SUCCESS:
+                mLoginProgressText.setText("Connected to server...");
+                break;
+            case iNetProgress.GET_INPUT_STREAM_SUCCESS:
+                mLoginProgressText.setText("getting data from server...");
+                break;
+            case iNetProgress.PROCESS_INPUT_STREAM_IN_PROGRESS:
+                //percentage completed
+                mLoginProgressText.setText("reading data...");
+                break;
+            case iNetProgress.PROCESS_INPUT_STREAM_SUCCESS:
+                //operation completed
+                mLoginProgressText.setText("connection comlete...");
+                break;
+        }
+    }
+
+    //will return a hashmap containing user details and jwt token
+    protected HashMap<String,String> getParsedUserData(JSONObject jsonDataObject) {
+        HashMap<String,String> hm = new HashMap<>();
+
+        try {
+            String jwtToken = jsonDataObject.getString("jwt");
+            JSONObject userJsonObject = jsonDataObject.getJSONObject("user");
+            //get user details from json object and write to hashmap
+            hm.put("id",String.valueOf(userJsonObject.getInt("id")));
+            hm.put("firstName",userJsonObject.getString("firstName"));
+            hm.put("lastName",userJsonObject.getString("lastName"));
+            hm.put("username",userJsonObject.getString("username"));
+            hm.put("email",userJsonObject.getString("email"));
+            hm.put("jwtToken",jwtToken);
+        }
+        catch (JSONException je) {
+            hm = null;
         }
 
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
+        return hm;
     }
 }
 

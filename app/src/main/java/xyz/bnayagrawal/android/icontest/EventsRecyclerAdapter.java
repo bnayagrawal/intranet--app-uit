@@ -65,7 +65,7 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventsRecyclerAd
             else break;
 
         viewHolder.itemTitle.setText(eds.getTitle());
-        viewHolder.itemDetail.setText(shortDesc + "...");
+        viewHolder.itemDetail.setText(shortDesc.trim() + "...");
         viewHolder.dates.setText(eds.getNotification_date().toString());
         viewHolder.interested.setText(eds.getPeoples_interested() + " Intersted");
         viewHolder.going.setText(eds.getPeoples_going() + " Going");

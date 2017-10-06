@@ -1,7 +1,9 @@
 package xyz.bnayagrawal.android.icontest;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -13,6 +15,8 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -24,12 +28,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
+
+        //check if the user has logged in or not
+        if(!checkLogin()) {
+            //user has not logged in
+            Toast.makeText(getApplicationContext(),"Please login",Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }
+
         this.savedInstanceState = savedInstanceState;
         setFragment();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_dashboard);
+        setNavDrawerUserInfo();
+    }
+
+    //check if the user has logged in or not
+    protected boolean checkLogin() {
+        SharedPreferences sharedPref = getSharedPreferences("SP_USER_DETAILS_FILE", Context.MODE_PRIVATE);
+        String jwtToken = sharedPref.getString("USER_JWT_TOKEN",null);
+
+        return (jwtToken != null);
+    }
+
+    //set nav drawer user name and email
+    public void setNavDrawerUserInfo() {
+        SharedPreferences sharedPref = getSharedPreferences("SP_USER_DETAILS_FILE", Context.MODE_PRIVATE);
+        String user_full_name = sharedPref.getString("USER_FIRST_NAME","user") + " " + sharedPref.getString("USER_LAST_NAME","name");
+        String user_email = sharedPref.getString("USER_EMAIL","username@email.xyz");
+
+        //https://stackoverflow.com/questions/33194594/navigationview-get-find-header-layout
+        View header = navigationView.getHeaderView(0);
+        ((TextView) header.findViewById(R.id.nav_header_user_email)).setText(user_email);
+        ((TextView) header.findViewById(R.id.nav_header_user_full_name)).setText(user_full_name);
     }
 
     @Override
